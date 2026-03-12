@@ -94,9 +94,10 @@
   /* ─── HERO ────────────────────────────────── */
   #hero {
      min-height: 100vh;
-     display: flex;
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 60px;
      align-items: center;
-     justify-content: center;
      padding: 0 60px;
      position: relative;
      overflow: hidden;
@@ -136,10 +137,9 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    text-align: center;
-    width: 100%;
+    text-align: left;
   }
   .hero-tag {
     display: inline-flex; align-items: center; gap: 8px;
@@ -265,6 +265,65 @@
   @keyframes fadeUp {
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* ─── TERMINAL ───────────────────────────── */
+  .terminal-window {
+    background: #1a1b26;
+    border-radius: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    overflow: hidden;
+    width: 100%;
+    max-width: 480px;
+  }
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #24253a;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .terminal-dots { display: flex; gap: 7px; }
+  .terminal-dot {
+    width: 13px; height: 13px; border-radius: 50%;
+  }
+  .terminal-dot.red    { background: #ff5f57; }
+  .terminal-dot.yellow { background: #ffbd2e; }
+  .terminal-dot.green  { background: #28c840; }
+  .terminal-title {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    flex: 1;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+  .terminal-body {
+    padding: 20px 22px;
+    min-height: 280px;
+    color: #a9b1d6;
+    line-height: 1.75;
+  }
+  .terminal-prompt { color: #7aa2f7; user-select: none; }
+  .terminal-cursor {
+    display: inline-block;
+    width: 9px; height: 15px;
+    background: #7aa2f7;
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: termBlink 1s step-end infinite;
+  }
+  @keyframes termBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  .terminal-cmd-line { display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap; }
+  .terminal-output-line { padding-left: 2px; }
+  .t-green  { color: #9ece6a; }
+  .t-blue   { color: #7aa2f7; }
+  .t-yellow { color: #e0af68; }
+  .t-muted  { color: rgba(169,177,214,0.45); }
 
   /* ─── SECTION WRAPPER ─────────────────────── */
   section {
@@ -666,7 +725,7 @@
   </div>
   <div class="hero-left">
     <div class="hero-tag">Available for Internship</div>
-    <h1 class="hero-name" style="text-align:center;">Sanjay Singh Chatri</h1>
+    <h1 class="hero-name">Sanjay Singh Chatri</h1>
     <p class="hero-role">Computer Vision & AI Engineer · ECE Student</p>
     <p class="hero-desc">
       Building real-time AI systems with deep learning, computer vision, and IoT.
@@ -677,7 +736,25 @@
       <a href="#contact" class="btn-secondary">Get In Touch</a>
     </div>
   </div>
-  <!-- Removed hero-card with stats as requested -->
+  <div class="hero-right">
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+        </div>
+        <span class="terminal-title">sanjay@portfolio — zsh</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-cmd-line">
+          <span class="terminal-prompt">visitor@portfolio:~$</span>
+          <span id="terminalTyped"></span><span class="terminal-cursor" id="terminalCursor"></span>
+        </div>
+        <div id="terminalOutput"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -1271,6 +1348,95 @@
       if (e.key === 'ArrowLeft') navigate(-1);
       if (e.key === 'ArrowRight') navigate(1);
     });
+
+    // ─── TERMINAL TYPING ANIMATION ───────────────────────────
+    (function() {
+      const sequences = [
+        {
+          cmd: 'whoami',
+          output: ['<span class="t-green">sanjay-singh-chatri</span>']
+        },
+        {
+          cmd: 'cat about.txt',
+          output: [
+            '<span class="t-blue">B.Tech ECE @ LPU  |  AI / CV Engineer</span>',
+            '<span class="t-blue">NIT Silchar Intern |  IIT Mandi Winner</span>'
+          ]
+        },
+        {
+          cmd: 'ls skills/',
+          output: [
+            '<span class="t-green">python</span>  <span class="t-green">tensorflow</span>  <span class="t-green">opencv</span>  <span class="t-green">yolo</span>',
+            '<span class="t-green">esp32</span>   <span class="t-green">mediapipe</span>   <span class="t-green">pytorch</span>  <span class="t-green">numpy</span>'
+          ]
+        },
+        {
+          cmd: './projects --top',
+          output: [
+            '<span class="t-yellow">[1]</span> ISL Recognition  <span class="t-muted">— 95.79% accuracy 🎯</span>',
+            '<span class="t-yellow">[2]</span> Biometric Smart Classroom',
+            '<span class="t-yellow">[3]</span> Autonomous Water Quality Bot'
+          ]
+        },
+        {
+          cmd: 'git log --oneline -1',
+          output: [
+            '<span class="t-blue">a1b2c3d</span> <span class="t-muted">feat: 5D CNN+LSTM real-time ISL recognition</span>'
+          ]
+        }
+      ];
+
+      const outputEl  = document.getElementById('terminalOutput');
+      const typedEl   = document.getElementById('terminalTyped');
+      const MAX_TERMINAL_LINES = 18;
+      let seqIdx = 0;
+
+      function sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      async function typeText(text) {
+        for (let i = 0; i <= text.length; i++) {
+          typedEl.textContent = text.slice(0, i);
+          await sleep(55 + Math.random() * 35);
+        }
+      }
+
+      async function runTerminal() {
+        await sleep(600);
+        while (true) {
+          const seq = sequences[seqIdx % sequences.length];
+
+          await typeText(seq.cmd);
+          await sleep(380);
+
+          const cmdLine = document.createElement('div');
+          cmdLine.className = 'terminal-cmd-line';
+          cmdLine.innerHTML = '<span class="terminal-prompt">visitor@portfolio:~$</span> ' +
+            '<span>' + seq.cmd + '</span>';
+          outputEl.appendChild(cmdLine);
+          typedEl.textContent = '';
+
+          for (let j = 0; j < seq.output.length; j++) {
+            await sleep(160);
+            const outLine = document.createElement('div');
+            outLine.className = 'terminal-output-line';
+            outLine.innerHTML = seq.output[j];
+            outputEl.appendChild(outLine);
+          }
+
+          await sleep(1100);
+          seqIdx++;
+
+          if (outputEl.children.length > MAX_TERMINAL_LINES) {
+            await sleep(500);
+            outputEl.innerHTML = '';
+          }
+        }
+      }
+
+      runTerminal();
+    })();
   </script>
 
 
